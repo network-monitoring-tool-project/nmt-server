@@ -1,10 +1,12 @@
 ## Anforderungskatalog
 
-1. Stand-alone-Anwendung, die als Netzwerkmonitoring-Tool dient.
-2. Es handelt sich um eine Windows-Anwendung.
-3. Der IP-Adressbereich ist über eine Benutzeroberfläche konfigurierbar.
-4. Für den analysierten IP-Bereich wird jeder Host ermittelt.
-5. Für jeden ermittelten Host werden IP-Adresse, Subnetzmaske und MAC-Adresse festgestellt und über die
-   Benutzeroberfläche ausgegeben.
-6. Die Anwendung aktualisiert die Parameter der Clients automatisch.
-7. Die Anwendung ist erweiterbar für optionale Funktionalitäten bezüglich der Netzwerküberwachung.
+1. Server-Client-Anwendung, die als Netzwerkmonitoring-Tool dient.
+2. Die Server-Anwendung ist in Java geschrieben und läuft auf einem Windows-System.
+3. Der Server führt die Netzwerkanalyse durch und stellt Endpunkte für die Webanwendung zur Verfügung.
+4. Die Webanwendung stellt die Benutzeroberfläche zur Verfügung.
+5. Die Benutzerauthentifizierung liegt im Tätigkeitsbereich der Webanwendung.
+6. Für die Webanwendung werden Laravel und Bootstrap verwendet.
+7. Über die Benutzeroberfläche kann der Anwender Parameter des zu analysierenden Netzwerkbereiches angeben. Diese werden
+   an den Server gesendet, der das Netzwerk analysiert und der Webanwendung die Daten via JSON zurücksendet.
+8. Zur Analyse des Netzwerkes wird das Address Resolution Protocol verwendet.
+9. Die Anwendung kann um weitere Funktionalitäten erweitert werden.
