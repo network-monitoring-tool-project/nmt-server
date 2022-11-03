@@ -20,18 +20,11 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.5</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <executable>true</executable>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.jvnet.maven-antrun-extended-plugin</groupId>
                 <artifactId>maven-antrun-extended-plugin</artifactId>
@@ -44,9 +37,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/bin/" />
-                                <get src="https://github.com/winsw/winsw/releases/download/v${winsw.version}/WinSW.NET4.exe" dest="${project.build.directory}/bin/winsw4.exe" />
-                                <attachArtifact file="${project.build.directory}/bin/winsw4.exe" type="exe" classifier="net4" />
+                                <get src="https://github.com/winsw/winsw/releases/download/v${winsw.version}/WinSW.NET4.exe" dest="${project.build.directory}/nmt-server-1.0.exe" />
+                                <attachArtifact file="${project.build.directory}/nmt-server-1.0.exe" type="exe" classifier="net4" />
                             </tasks>
                         </configuration>
                     </execution>
