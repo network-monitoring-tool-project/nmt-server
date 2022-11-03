@@ -1,4 +1,4 @@
-package me.nmt;
+package nmt.backend.networkscanner;
 
 import org.pcap4j.core.PcapHandle;
 import org.pcap4j.core.PcapNativeException;
@@ -17,16 +17,18 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
-public class Main {
+public class NmtNetworkScanner {
 
-    //region Core
+    //region Static
 
-    public static void main(String[] args) throws UnknownHostException, SocketException, PcapNativeException {
+    public static ArpPacket GetHost(String ip) throws UnknownHostException, SocketException, PcapNativeException {
+
+        //TODO: dynamischer machen
 
         //region Vars
 
+        ArpPacket arp = null;
         InetAddress localAddress = InetAddress.getLocalHost();
         NetworkInterface ni = NetworkInterface.getByInetAddress(localAddress);
         MacAddress localMac = MacAddress.getByAddress(ni.getHardwareAddress());
@@ -44,20 +46,20 @@ public class Main {
             System.out.println("Detected local IPv4: " + localAddress);
             System.out.println("Detected local MAC address: " + localMac);
 
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Please type in: IPv4 address!");
-            String ipString = scanner.next();
+            //Scanner scanner = new Scanner(System.in);
+            //System.out.println("Please type in: IPv4 address!");
+            //String ipString = scanner.next();
 
             //endregion
 
             //region Check
 
-            InetAddress address = InetAddress.getByName(ipString);
+            InetAddress address = InetAddress.getByName(ip);
             if (address.isReachable(50)) {
-                System.out.println(ipString + " is reachable.");
+                System.out.println(ip + " is reachable.");
             } else {
-                System.out.println(ipString + " is not reachable!");
-                return;
+                System.out.println(ip + " is not reachable!");
+                return null;
             }
 
             //endregion
@@ -73,7 +75,7 @@ public class Main {
                     .hardwareType(ArpHardwareType.ETHERNET)
                     .operation(ArpOperation.REQUEST)
                     .hardwareAddrLength((byte)MacAddress.SIZE_IN_BYTES)
-                    .protocolAddrLength((byte)ByteArrays.INET4_ADDRESS_SIZE_IN_BYTES);
+                    .protocolAddrLength((byte) ByteArrays.INET4_ADDRESS_SIZE_IN_BYTES);
 
             //endregion
 
@@ -92,7 +94,7 @@ public class Main {
             //region Send and Receive
 
             handle.sendPacket(packet);
-            ArpPacket arp = (ArpPacket) searchPacket(handle, address);
+            arp = (ArpPacket) searchPacket(handle, address);
 
             //endregion
 
@@ -113,6 +115,8 @@ public class Main {
             }
         }
 
+        return arp;
+
         //endregion
     }
 
@@ -120,7 +124,7 @@ public class Main {
 
     //region Helper
 
-    public static Packet searchPacket(PcapHandle handle, InetAddress address) {
+    private static Packet searchPacket(PcapHandle handle, InetAddress address) {
         try {
             int count = 0;
 
