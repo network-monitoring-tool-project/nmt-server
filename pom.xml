@@ -7,11 +7,13 @@
     <groupId>me.nmt</groupId>
     <artifactId>nmt-server</artifactId>
     <version>1.0</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <winsw.version>2.9.0</winsw.version>
     </properties>
 
     <parent>
@@ -21,8 +23,39 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <executable>true</executable>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jvnet.maven-antrun-extended-plugin</groupId>
+                <artifactId>maven-antrun-extended-plugin</artifactId>
+                <version>1.42</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/bin/" />
+                                <get src="https://github.com/winsw/winsw/releases/download/v${winsw.version}/WinSW.NET4.exe" dest="${project.build.directory}/bin/winsw4.exe" />
+                                <attachArtifact file="${project.build.directory}/bin/winsw4.exe" type="exe" classifier="net4" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
+    <dependencies>
         <!-- PCAP -->
         <dependency>
             <groupId>org.pcap4j</groupId>

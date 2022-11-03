@@ -2,3 +2,7 @@
 /application/nmt/.idea/
 /application/.idea/
 /target/
+/nmt-server-1.0.err.log
+/nmt-server-1.0.exe
+/nmt-server-1.0.out.log
+/nmt-server-1.0.wrapper.log

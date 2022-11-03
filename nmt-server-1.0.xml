@@ -1,0 +1,9 @@
+<service>
+    <id>nmt-server</id>
+    <name>nmt-server</name>
+    <description>This service runs the network monitoring tool.</description>
+    <env name="NMT_SERVER" value="%BASE%"/>
+    <executable>java</executable>
+    <arguments>-Xrs -Xmx256m -jar "%BASE%\target\nmt-server-1.0.jar"</arguments>
+    <log mode="roll"></log>
+</service>
