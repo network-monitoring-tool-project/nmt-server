@@ -80,7 +80,6 @@ public class NmtNetworkScanner {
             //endregion
 
             //region Ethernet
-
             Packet packet = new EthernetPacket.Builder()
                     .dstAddr(MacAddress.ETHER_BROADCAST_ADDRESS)
                     .srcAddr(localMac)

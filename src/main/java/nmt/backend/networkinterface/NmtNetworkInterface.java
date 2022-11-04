@@ -2,6 +2,7 @@ package nmt.backend.networkinterface;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class NmtNetworkInterface implements Serializable {
 
@@ -12,7 +13,7 @@ public class NmtNetworkInterface implements Serializable {
     private String name = "";
     private String mac = "";
 
-    private ArrayList<String> addresses = new ArrayList<>();
+    private List<String> addresses = new ArrayList<>();
 
     private boolean isActive = false;
     private boolean isSelected = false;
@@ -83,11 +84,11 @@ public class NmtNetworkInterface implements Serializable {
         return this;
     }
 
-    public ArrayList<String> getAddresses(){
+    public List<String> getAddresses(){
         return this.addresses;
     }
 
-    public NmtNetworkInterface setAddresses(ArrayList<String> addresses){
+    public NmtNetworkInterface setAddresses(List<String> addresses){
         this.addresses = addresses;
         return this;
     }

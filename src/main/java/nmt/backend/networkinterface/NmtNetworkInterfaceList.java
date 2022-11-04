@@ -1,12 +1,17 @@
 package nmt.backend.networkinterface;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NmtNetworkInterfaceList extends AbstractList<NmtNetworkInterface> implements Serializable {
+    final static Logger log = LoggerFactory.getLogger(NmtNetworkInterfaceList.class);
 
     //region Fields
 
@@ -18,7 +23,7 @@ public class NmtNetworkInterfaceList extends AbstractList<NmtNetworkInterface> i
     //region Constructor
 
     /* no parameterless constructor provided to control instantiation */
-    private NmtNetworkInterfaceList(){
+    private NmtNetworkInterfaceList() {
 
     }
 
@@ -41,12 +46,12 @@ public class NmtNetworkInterfaceList extends AbstractList<NmtNetworkInterface> i
     }
 
     @Override
-    public NmtNetworkInterface set(int index, NmtNetworkInterface inf){
+    public NmtNetworkInterface set(int index, NmtNetworkInterface inf) {
         return elements.set(index, inf);
     }
 
     @Override
-    public void add(int index, NmtNetworkInterface inf){
+    public void add(int index, NmtNetworkInterface inf) {
         elements.add(index, inf);
     }
 
@@ -54,19 +59,23 @@ public class NmtNetworkInterfaceList extends AbstractList<NmtNetworkInterface> i
 
     //region Static
     public static List<NmtNetworkInterface> LoadNetworkInterfaces() throws SocketException {
-        Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
 
-        for (NetworkInterface netInterface : Collections.list(netInterfaces)){
+        NetworkInterface.getNetworkInterfaces().asIterator().forEachRemaining(inf -> {
+            try {
+                NmtNetworkInterface nmtNetInterface = new NmtNetworkInterface()
+                        .setId(idCounter)
+                        .setName(inf.getName())
+                        .setActiveState(inf.isUp())
+                        .setMac(inf.getHardwareAddress())
+                        .setAddresses(inf.getInterfaceAddresses().stream()
+                                .map(x -> x.getAddress().toString())
+                                .toList());
 
-            NmtNetworkInterface nmtNetInterface = new NmtNetworkInterface()
-                    .setId(idCounter)
-                    .setName(netInterface.getName())
-                    .setActiveState(netInterface.isUp())
-                    .setMac(netInterface.getHardwareAddress())
-                    .setAddresses((ArrayList<String>) netInterface.getInterfaceAddresses().stream().map(x->x.getAddress().toString()).collect(Collectors.toList()));
-
-            elements.add(idCounter, nmtNetInterface);
-        }
+                elements.add(idCounter, nmtNetInterface);
+            } catch (SocketException e) {
+                log.warn("SocketException while loading network interfaces...", e);
+            }
+        });
 
         idCounter++;
 
@@ -74,13 +83,6 @@ public class NmtNetworkInterfaceList extends AbstractList<NmtNetworkInterface> i
     }
 
     //endregion
-
-
-
-
-
-
-
 
 
 }
