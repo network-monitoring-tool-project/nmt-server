@@ -46,13 +46,13 @@ public class NmtNetworkScannerController {
         return objWriter.writeValueAsString(netHost);
     }
 
-    @GetMapping("/api/hosts")
+    @GetMapping("/api/hosts/cidr")
     public String getHosts(@RequestParam(required = true, defaultValue = "10.19.224.0") String ip, @RequestParam(required = true, defaultValue = "24") int cidr) throws SocketException, UnknownHostException, PcapNativeException, JsonProcessingException {
         final List<NmtNetworkHost> hosts = new ArrayList<>();
 
         Utils.getAvailableAddresses(ip, cidr).forEach(address -> {
             try {
-                ArpPacket arp = NmtNetworkScanner.GetHost(ip);
+                ArpPacket arp = NmtNetworkScanner.GetHost(address);
                 ArrayList<String> addresses = new ArrayList<>();
                 assert arp != null;
                 addresses.add(arp.getHeader().getSrcProtocolAddr().toString());
@@ -70,6 +70,36 @@ public class NmtNetworkScannerController {
                 log.warn(e.getClass().getSimpleName() + ": ", e);
             }
 
+        });
+
+        ObjectWriter objWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+        return objWriter.writeValueAsString(hosts);
+    }
+
+    @GetMapping("/api/hosts/range")
+    public String getHosts(@RequestParam(required = true, defaultValue = "10.19.224.0") String lowerBound, @RequestParam(required = true, defaultValue = "10.19.224.10") String upperBound) throws SocketException, UnknownHostException, PcapNativeException, JsonProcessingException {
+        final List<NmtNetworkHost> hosts = new ArrayList<>();
+
+        Utils.getAvailableAddresses(lowerBound, upperBound).forEach(address -> {
+            try {
+                ArpPacket arp = NmtNetworkScanner.GetHost(address);
+                ArrayList<String> addresses = new ArrayList<>();
+                assert arp != null;
+                addresses.add(arp.getHeader().getSrcProtocolAddr().toString());
+
+                NmtNetworkInterface netInterfaceHost = new NmtNetworkInterface()
+                        .setMac(arp.getHeader().getSrcHardwareAddr().getAddress())
+                        .setAddresses(addresses)
+                        .setActiveState(true);
+
+                NmtNetworkHost netHost = new NmtNetworkHost(netInterfaceHost);
+                netHost.setIsReachable(true);
+
+                hosts.add(netHost);
+            } catch (Exception e) {
+                log.warn(e.getClass().getSimpleName() + ": ", e);
+            }
         });
 
         ObjectWriter objWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
