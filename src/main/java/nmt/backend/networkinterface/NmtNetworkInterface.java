@@ -1,9 +1,12 @@
 package nmt.backend.networkinterface;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class NmtNetworkInterface implements Serializable {
 
     //region Fields
