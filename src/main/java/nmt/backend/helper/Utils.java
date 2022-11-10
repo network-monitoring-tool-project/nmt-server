@@ -33,51 +33,39 @@ public class Utils {
     }
 
     public static List<String> getAvailableAddresses(final String lowerBound, final String upperBound) throws NumberFormatException {
-        //TODO noch nicht ready
-        List<String> ipAddresses = new ArrayList<>();
+        final List<String> ipAddresses = new ArrayList<>();
 
-        final String[] lowerIpArr = lowerBound.split("\\.");
-        final String[] upperIpArr = upperBound.split("\\.");
+        final int[] lowerIpArr = Arrays.stream(lowerBound.split("\\.")).mapToInt(Integer::parseInt).toArray();
+        final int[] countingIpArr = Arrays.copyOf(lowerIpArr, lowerIpArr.length);
+        final int[] upperIpArr = Arrays.stream(upperBound.split("\\.")).mapToInt(Integer::parseInt).toArray();
+
         // each ip array has to contain exactly 4 elements (4 * 8 Bit = 32 Bit)
         if (lowerIpArr.length != MAX_BYTES || (upperIpArr.length != MAX_BYTES)) {
             return ipAddresses;
         }
 
-        String address = "";
+        ipAddresses.add(getAddressFromArr(lowerIpArr));
+        while (!Arrays.equals(countingIpArr, upperIpArr)) {
+            countingIpArr[MAX_BYTES - 1]++;
 
-        // iterate through bytes
-        for (int ipByte = 0; ipByte < MAX_BYTES; ipByte++) {
-            int lowerByte = Integer.parseInt(lowerIpArr[ipByte]);
-            final int upperByte = Integer.parseInt(upperIpArr[ipByte]);
-
-            // break once the first difference byte is found
-            if (lowerByte != upperByte) {
-                // count up the first difference byte until it matches the upper bound
-                for (int firstDiffByte = lowerByte; firstDiffByte <= upperByte; firstDiffByte++) {
-                    // go backwards through rest bytes and count every byte
-                    for (int ueIpByte = MAX_BYTES - 1; ueIpByte > ipByte; ueIpByte--) {
-                        final int nextLowerByte = Integer.parseInt(lowerIpArr[ueIpByte]);
-                        final int nextUpperByte = Integer.parseInt(upperIpArr[ueIpByte]);
-
-                        // apply a lower and upper bound for counting up
-                        final int max = firstDiffByte == upperByte ? nextUpperByte : MAX_BYTE;
-                        final int min = firstDiffByte == lowerByte ? nextLowerByte : 0;
-
-                        String newAddress = address + firstDiffByte + ".";
-
-                        for (int count = min; count <= max; count++) {
-                            ipAddresses.add(String.format("%s%s", newAddress, count));
-                        }
-                    }
-
+            for (int c = MAX_BYTES - 1; c >= 0; c--) {
+                if (countingIpArr[c] > 255) {
+                    countingIpArr[c] = 0;
+                    if (c - 1 >= 0)
+                        countingIpArr[c - 1]++;
                 }
-                break;
-            } else {
-                // append address for identical byte values
-                address += lowerIpArr[ipByte] + ".";
             }
+            ipAddresses.add(getAddressFromArr(countingIpArr));
         }
         return ipAddresses;
+    }
+
+    public static String getAddressFromArr(int[] arr) {
+        StringBuilder b = new StringBuilder();
+        Arrays.stream(arr).forEach(l -> b.append(l).append("."));
+
+        b.deleteCharAt(b.length() - 1);
+        return b.toString();
     }
 
     /**
