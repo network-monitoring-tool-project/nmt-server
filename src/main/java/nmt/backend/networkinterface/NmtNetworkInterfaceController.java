@@ -3,13 +3,11 @@ package nmt.backend.networkinterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.List;
 
@@ -20,7 +18,7 @@ public class NmtNetworkInterfaceController {
     @GetMapping("/api/interfaces")
     public String GetInterfaces(@RequestParam(required = true, defaultValue = "True") boolean onlyActive) throws SocketException, JsonProcessingException {
 
-        List<NmtNetworkInterface> networkInterfaces = NmtNetworkInterfaceList.LoadNetworkInterfaces();
+        List<NmtNetworkInterface> networkInterfaces = NmtNetworkInterfaceList.loadNetworkInterfaces();
 
         if (onlyActive){
             networkInterfaces = networkInterfaces.stream().filter(NmtNetworkInterface::getActiveState).toList();

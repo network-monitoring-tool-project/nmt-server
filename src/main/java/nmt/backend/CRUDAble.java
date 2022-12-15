@@ -16,13 +16,13 @@ public abstract class CRUDAble {
 
     // region Connection
 
-    public Connection GetConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
 
         // region Vars
 
-        ConnectionSettings conSettings = new ConnectionSettings().GetConnectionSettings();
+        ConnectionSettings conSettings = ConnectionSettings.getConnectionSettings();
 
-        Connection con = DriverManager.getConnection(conSettings.GetConnectionString(), conSettings.getUsername(), conSettings.getPassword());
+        Connection con = DriverManager.getConnection(conSettings.getConnectionString(), conSettings.getUsername(), conSettings.getPassword());
 
         // endregion
 

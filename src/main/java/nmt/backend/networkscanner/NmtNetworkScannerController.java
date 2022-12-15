@@ -25,10 +25,14 @@ import java.util.List;
 public class NmtNetworkScannerController {
     final static Logger log = LoggerFactory.getLogger(NmtNetworkScannerController.class);
 
+    /**
+     * TODO: Dokumentation, UML-Diagramm, Zustandsdiagramm
+     */
+
     @GetMapping("/api/host")
     public String getHost(@RequestParam(required = true, defaultValue = "192.168.178.1") String ip) throws SocketException, UnknownHostException, PcapNativeException, JsonProcessingException {
 
-        ArpPacket arp = NmtNetworkScanner.GetHost(ip);
+        ArpPacket arp = NmtNetworkScanner.getHost(ip);
         ArrayList<String> addresses = new ArrayList<>();
         assert arp != null;
         addresses.add(arp.getHeader().getSrcProtocolAddr().toString());
@@ -52,7 +56,7 @@ public class NmtNetworkScannerController {
 
         Utils.getAvailableAddresses(ip, cidr).forEach(address -> {
             try {
-                ArpPacket arp = NmtNetworkScanner.GetHost(address);
+                ArpPacket arp = NmtNetworkScanner.getHost(address);
                 ArrayList<String> addresses = new ArrayList<>();
                 assert arp != null;
                 addresses.add(arp.getHeader().getSrcProtocolAddr().toString());
@@ -65,11 +69,11 @@ public class NmtNetworkScannerController {
                 NmtNetworkHost netHost = new NmtNetworkHost(netInterfaceHost);
                 netHost.setIsReachable(true);
 
+                netHost.createOrUpdate();
                 hosts.add(netHost);
             } catch (Exception e) {
                 log.warn(e.getClass().getSimpleName() + ": ", e);
             }
-
         });
 
         ObjectWriter objWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -83,7 +87,7 @@ public class NmtNetworkScannerController {
 
         Utils.getAvailableAddresses(lowerBound, upperBound).forEach(address -> {
             try {
-                ArpPacket arp = NmtNetworkScanner.GetHost(address);
+                ArpPacket arp = NmtNetworkScanner.getHost(address);
                 ArrayList<String> addresses = new ArrayList<>();
                 assert arp != null;
                 addresses.add(arp.getHeader().getSrcProtocolAddr().toString());

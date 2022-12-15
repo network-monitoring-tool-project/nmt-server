@@ -58,7 +58,7 @@ public class NmtNetworkInterfaceList extends AbstractList<NmtNetworkInterface> i
     //endregion
 
     //region Static
-    public static List<NmtNetworkInterface> LoadNetworkInterfaces() throws SocketException {
+    public static List<NmtNetworkInterface> loadNetworkInterfaces() throws SocketException {
 
         NetworkInterface.getNetworkInterfaces().asIterator().forEachRemaining(inf -> {
             try {

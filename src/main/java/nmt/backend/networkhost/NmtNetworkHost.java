@@ -1,8 +1,9 @@
 package nmt.backend.networkhost;
 
-import jdk.jshell.spi.ExecutionControl;
 import nmt.backend.CRUDAble;
 import nmt.backend.networkinterface.NmtNetworkInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 //NetworkHostHistory (im Web) mit Statuswechsel (beispielsweise gestern zw. 11 - 12 Uhr down)
 public class NmtNetworkHost extends CRUDAble implements Serializable {
+    final static Logger log = LoggerFactory.getLogger(NmtNetworkHost.class);
 
     //region Fields
 
@@ -24,7 +26,7 @@ public class NmtNetworkHost extends CRUDAble implements Serializable {
 
     //region Constructor
 
-    public NmtNetworkHost(NmtNetworkInterface networkInterface){
+    public NmtNetworkHost(NmtNetworkInterface networkInterface) {
         this.networkInterface = networkInterface;
     }
 
@@ -32,20 +34,20 @@ public class NmtNetworkHost extends CRUDAble implements Serializable {
 
     //region Properties
 
-    public NmtNetworkInterface getNetworkInterface(){
+    public NmtNetworkInterface getNetworkInterface() {
         return this.networkInterface;
     }
 
-    public NmtNetworkHost setNetworkInterface(NmtNetworkInterface networkInterface){
+    public NmtNetworkHost setNetworkInterface(NmtNetworkInterface networkInterface) {
         this.networkInterface = networkInterface;
         return this;
     }
 
-    public boolean getIsReachable(){
+    public boolean getIsReachable() {
         return this.isReachable;
     }
 
-    public NmtNetworkHost setIsReachable(boolean isReachable){
+    public NmtNetworkHost setIsReachable(boolean isReachable) {
         this.isReachable = isReachable;
         return this;
     }
@@ -61,7 +63,7 @@ public class NmtNetworkHost extends CRUDAble implements Serializable {
                 "VALUES('@id', '@mac', '@ip_v4', '@ip_v6', '@scan_id', '@online', '@created_at')";
 
         try {
-            sqlQuery = sqlQuery.replace("@id", GetNextId());
+            sqlQuery = sqlQuery.replace("@id", getNextId());
             sqlQuery = sqlQuery.replace("@id", this.networkInterface.getMac());
             sqlQuery = sqlQuery.replace("@ip_v4", this.networkInterface.getAddresses().get(1));
             sqlQuery = sqlQuery.replace("@ip_v6", this.networkInterface.getAddresses().get(0));
@@ -69,10 +71,18 @@ public class NmtNetworkHost extends CRUDAble implements Serializable {
             sqlQuery = sqlQuery.replace("@online", "1");
             sqlQuery = sqlQuery.replace("@created_at", LocalDateTime.now().toString());
 
-            GetConnection().createStatement().executeQuery(sqlQuery);
+            getConnection().createStatement().executeQuery(sqlQuery);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+
+        return true;
+    }
+
+    public boolean createOrUpdate() throws SQLException {
+        if (!update()){
+            create();
         }
 
         return true;
@@ -85,7 +95,35 @@ public class NmtNetworkHost extends CRUDAble implements Serializable {
 
     @Override
     public boolean update() {
-        return false;
+        String sqlQuery = String.format("SELECT * FROM addresses WHERE mac = '%s'", this.networkInterface.getMac());
+
+        try {
+            Statement statement = getConnection().createStatement();
+            final ResultSet result = statement.executeQuery(sqlQuery);
+
+            if (result.first()) {
+                final String values = String.format("ip_v4 = %s, ip_v6 = %s, scan_id = %s, online = %s, created_at = %s",
+                        this.networkInterface.getAddresses().get(1),
+                        this.networkInterface.getAddresses().get(0),
+                        "9999",
+                        "1",
+                        LocalDateTime.now()
+                );
+                sqlQuery = String.format("UPDATE addresses SET %s WHERE mac = '%s'", values, this.networkInterface.getMac());
+
+                final ResultSet update = statement.executeQuery(sqlQuery);
+                if (update.first()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            log.error("SQL Exception: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -97,15 +135,15 @@ public class NmtNetworkHost extends CRUDAble implements Serializable {
 
     // region Helper
 
-    public String GetNextId() throws SQLException {
+    public String getNextId() throws SQLException {
 
-        String sqlQuery = "Select MAX(id) from addresses";
+        String sqlQuery = "select MAX(id) from addresses";
         int nextId = -1;
 
-        Statement statement = GetConnection().createStatement();
+        Statement statement = getConnection().createStatement();
         ResultSet result = statement.executeQuery(sqlQuery);
 
-        if (result.first()){
+        if (result.first()) {
             nextId = result.getInt("id");
         }
 

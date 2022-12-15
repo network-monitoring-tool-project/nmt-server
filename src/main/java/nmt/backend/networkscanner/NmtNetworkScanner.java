@@ -22,7 +22,7 @@ public class NmtNetworkScanner {
 
     //region Static
 
-    public static ArpPacket GetHost(String ip) throws UnknownHostException, SocketException, PcapNativeException {
+    public static ArpPacket getHost(String ip) throws UnknownHostException, SocketException, PcapNativeException {
 
         //TODO: dynamischer machen
 

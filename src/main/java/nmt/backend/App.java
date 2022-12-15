@@ -1,5 +1,6 @@
 package nmt.backend;
 
+import nmt.backend.helper.Utils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 public class App {
 
     public static void main(String[] args) {
+        //Utils.getAvailableAddresses("10.19.0.106", "10.19.0.108").forEach(System.out::println);
         SpringApplication.run(App.class, args);
     }
 
